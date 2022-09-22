@@ -1,0 +1,925 @@
+{% assign image_links_dropdowns = section.blocks | where: 'type', 'link' %}
+
+{% assign menus_dropdowns = section.blocks | where: 'type', 'dropdown_with_menus' %}
+
+<style>
+  
+  #shopify-section-header-mega{
+    position: sticky;
+    top: 0;
+    z-index: 99;
+  }
+
+  .mega-menu{
+    z-index: 999;
+    box-shadow: 0 12px 11px -9px rgb(0 0 0 / 15%);
+  }
+
+  .mega-menu img {
+    display: block;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    max-width: 100%;
+  }
+
+  .mega__icon {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .mega__sub_title, .mega__link {
+    margin:  0;
+    font-size: 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .mega__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo--nav {
+    width: 50%;
+  }
+  
+  
+  .mega__icon {
+    position: relative;
+  }
+  
+  .mega__tooltip {
+    position: absolute;
+    top: 110%;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    padding: 25px 10px 10px 10px;
+    width: 250px;
+    z-index: 999;
+    background: var(--clr-secondary);
+    opacity: 0;
+    visibility: hidden;
+    text-align: center;
+    transition: .5s ease;
+    box-shadow: 0 5px 10px -5px rgba(0, 0, 0, .15);
+  }
+  
+  
+  
+  
+  .mega__link a:hover {
+    color: var(--clr-primary);
+  }
+  
+  
+  .cart-count-bubble {
+    background: #000;
+    color: #fff;
+    display: inline-block;
+    border-radius: 100px;
+    font-size: 12px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: none;
+  }
+  
+  .mega__drawer {
+    padding: 1em;
+    position: absolute;
+    right: 100%;
+    top: 100%;
+    background: #fff;
+    height: 96vh;
+    width: 100%;
+    z-index: 999;
+    transition: .3s ease-in;
+    overflow: scroll;
+    padding-bottom: 8rem;
+  }
+  
+  .mega__drawer.visible{
+    transform: translateX(100%); 
+  }
+
+  .mega__link {
+    display: block;
+    position: relative;
+    font-size: var(--fs-small);
+    letter-spacing: 2px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  .mega__link {
+    padding: 10px;
+  }
+  
+  .mega__summary--non_handset{
+    display: none;   
+  }
+  
+  .mega__summary::after{
+    content: '';
+    display: inline-block;
+    box-sizing: border-box;
+    height: 10px;
+    width: 10px;
+    border-style: solid;
+    border-color: #000;
+    border-width: 0px 1.5px 1.5px 0px;
+    transform: rotate(45deg);
+    position: absolute;
+    right: 1rem;
+    transition: .3s ease;
+  }
+
+  .mega__submenu{
+    padding: 0 1rem;
+    overflow: hidden;
+    height: 0;
+    transition: .3s ease-in;
+  }
+  
+  .mega__submenu.visible{
+    padding: 1rem 1rem;
+    height: auto;
+  }
+  
+  .mega__submenu--images.visible{
+    padding: 1rem;
+  }
+
+  .mega__sub_items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 1em;
+  }
+  
+  .mega__sub_items--menus {
+    grid-template-columns: 1fr;
+    grid-gap: 0;
+  }
+
+ .mega__sub_item {
+    box-shadow: 0 0 10px rgb(0 0 0 / 15%);
+  }
+  
+  .mega__sub_text {
+    text-align: center;
+    padding: 12px;
+  }
+  
+  .mega__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }  
+
+  .mega__icon {
+    width: 28px;
+    height: 30px;
+  }  
+  
+  .icons_spacing {
+    font-size: 18px;
+  }  
+  
+  .tel_icons_spacing {
+    font-size: 19px;
+  }
+  
+  .header__icon, .header__icon--cart .icon {
+    height: 3.4rem;
+    width: 3.4rem;
+  }
+  
+   .mega__icons {
+    display: flex;
+    justify-content: end;
+    justify-self: end;
+    gap: 6px;
+  }  
+  
+  .mega__icon:not(.mega__hamburger) {
+    width: 30px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+  }  
+  
+  .mega__icon--cart {
+    padding-right: 12px;
+  }
+  
+  @media screen and (min-width: 610px){
+  .mega__icons {
+    flex: 2;
+  }  
+   
+  .mega__logo.logo.logo--nav {
+    flex: 3;
+  }  
+    
+  .mega__icons {
+    flex: 2;
+  }  
+    
+  .mega__hamburger {
+    flex: 2;
+   }  
+    
+  .header__icon, .header__icon--cart .icon {
+    height: 4.4rem;
+    width: 4.4rem;
+  }  
+  
+  .mega__icon:not(.mega__hamburger) {
+    width: 38px;
+  }  
+  
+  .tel_icons_spacing {
+    font-size: 25px;
+  }  
+    
+  .mega__icon:hover .mega__tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) scale(1);
+  }
+    
+  .icons_spacing {
+    font-size: 24px;
+  }    
+    
+  }
+    
+  
+  @media screen and (min-width: 1100px){
+  	.mega__hamburger {
+      display: none;
+    }
+    
+    .mega__header{
+      align-items: initial; 
+    }
+    
+    .mega__drawer {
+      height: initial;
+      position: static;
+      display: block;
+      padding: 0;
+      
+      width: 100%;
+      overflow: initial;
+   }
+
+    .mega-menu {
+      position: relative;
+    }
+    
+   .mega__main-nav {
+     display: flex;
+     padding: 0;
+     height:100%;
+     justify-content: flex-end;
+   }
+    
+    .mega__header .mega__icons {
+      flex: 0 0 auto;
+      padding-left: 12px;
+    }
+    
+   .mega__submenu {
+    position: absolute;
+    left:  0;
+    top: 100%;
+    background: #fff;
+    width: 100%;
+    padding: 4rem 1rem;
+    box-shadow: 0 8px 5px 1px rgb(0 0 0 / 30%);
+    height: initial;
+    display: none;
+  }
+    
+/*       .mega__submenu{
+    padding: 0 1rem;
+    overflow: hidden;
+    height: 0;
+    transition: .3s ease-in;
+  } */
+  
+  .mega__submenu.visible{
+    height: auto;
+  }
+    
+  .mega__sub_items {
+    display: flex;
+    justify-content: center;
+  }
+   
+  .mega__sub_items--menus {
+     display: grid;
+     grid-template-columns: repeat(4, 1fr);
+     justify-content: center;
+     width: 90%;
+     max-width: 1000px;
+     margin: 0 auto;
+     column-gap: 2rem;
+   }
+    
+  .mega__sub_items--menus .mega__link{
+    white-space: nowrap; 
+  }
+    
+  .mega__sub_item{
+    max-width: calc(100% / 6);
+    width: 250px;
+    flex-shrink: 1;
+  }
+    
+  .mega__sub_image{
+    height: 220px;  
+  }
+    
+  .mega__header > * {
+    flex: 1;
+  }
+    
+  .mega__icons {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+   }
+
+  .logo--nav {
+    max-width: 210px;
+  	padding: 10px;
+  }
+    
+  .mega__item{
+    border-bottom: 1px solid #0000;
+  }
+    
+  .mega__item:hover{
+    border-color: var(--clr-primary);    
+  }
+    
+  .mega__item:hover .mega__submenu,
+  .mega__submenu:hover{
+    display: block;
+  }
+  
+    
+  .mega__item > .mega__link {
+    padding: 10px 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    letter-spacing: 0;
+  }
+    
+  .mega__summary::after{
+    content: initial;  
+  }
+    
+  .mega__item > .mega__summary--handset{
+  	display: none;    
+  }
+    
+  .mega__summary--non_handset{
+    display: block; 
+  }
+    
+/*   .mega__item:first-child > .mega__link{
+    padding-left: 10px; 
+  } */
+  
+    
+  .mega__item > .mega__link {
+    font-size: 12.5px;
+    padding: 10px 8px;
+  }
+    
+  .mega__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+  }  
+    
+  .mega__icons {
+    gap: 12px;
+  }  
+    
+  .header__icon, .header__icon--cart .icon {
+    height: 4.4rem;
+    width: 4.4rem;
+  }  
+  
+  .mega__icon:not(.mega__hamburger) {
+    width: 38px;
+  }  
+  
+  .tel_icons_spacing {
+    font-size: 25px;
+  }  
+    
+  .icons_spacing {
+    font-size: 24px;
+    padding-bottom: 2px;
+  }  
+    
+  .mega__item > .mega__link {
+    height: 81.5px;
+  }  
+    
+  }
+  
+@media screen and (min-width: 1280px){
+  
+  .mega__item > .mega__link {
+    font-size: var(--fs-small);
+    padding: 10px;
+  }
+  
+}
+  
+
+  
+@media screen and (min-width: 1616px){
+   
+  .mega__item > .mega__link {
+    padding: 10px 30px;
+    letter-spacing: 1px;
+  }
+}
+  
+
+.display-block{
+  display: block; 
+}
+  
+.display-flex{
+  display: flex; 
+}
+  
+</style>
+
+<section class="header-wrapper">
+  <header class="mega-menu" id="mega-menu">
+   <div class="page-width">
+    <div class="mega__header">
+      <div class="mega__icon mega__hamburger">
+        <summary class="header__icon header__icon--menu header__icon--summary" aria-label="{{ 'sections.header.menu' | t }}">
+          <span>
+            {% render 'icon-hamburger' %}
+          </span>
+        </summary>
+      </div>
+       <div class="mega__logo logo logo--nav">
+        <a href="/">
+          {% if section.settings.logo != blank %}
+            <img src="{{ section.settings.logo | img_url: '400x140' }}" alt="thicktails logo">
+          {%- else -%}
+              <span class="h2">{{ shop.name }}</span>
+          {% endif %}
+        </a>
+      </div>
+      <div id="mega-drawer" class="mega__drawer">
+
+	      <ul class="mega__main-nav">
+            {% for block in section.blocks %}
+            {% if block.type == 'link' or block.type == 'dropdown_with_menus' %}
+            <li class="mega__item">
+              <summary class="mega__link mega__summary mega__summary--handset">
+                {{ block.settings.title }}
+              </summary>
+              <a href="{{ block.settings.url }}" class="mega__link mega__summary--non_handset">
+                 {{ block.settings.title }}
+              </a>
+              <div class="mega__submenu {% if block.type == 'link' %} mega__submenu--images  {% endif %}">
+                {% if block.type == 'link' %}
+                <div class="mega__sub_items mega__sub_items--image">
+                  {% if block.settings.image_one != blank %}
+                  <div class="mega__sub_item mega__sub_item--{{ forloop.index }}">
+                    <a href="{{ block.settings.image_url_one }}">
+                      {% if block.settings.image_one != blank %}
+                      <div class="mega__sub_image">
+                        <img loading="lazy" src="{{ block.settings.image_one | img_url: 'master' }}" alt="{{ block.settings.image_title_one }}">
+                      </div>
+                      {% endif %}
+                      <div class="mega__sub_text">
+                        {% if  block.settings.image_title_one != blank %}
+                        <h2 class="mega__sub_title"> {{ block.settings.image_title_one }} </h2>
+                        {% endif %}
+                        {% if  block.settings.image_subtitle_one != blank %}
+                        <h3 class="mega__sub_subtitle"> {{ block.settings.image_subtitle_one  }} </h3>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+                  {% endif %}
+
+                  {% if block.settings.image_two != blank %}
+                  <div class="mega__sub_item mega__sub_item--{{ forloop.index }}">
+                    <a href="{{ block.settings.image_url_two }}">
+                      {% if block.settings.image_two != blank %}
+                      <div class="mega__sub_image">
+                        <img loading="lazy" src="{{ block.settings.image_two | img_url: 'master' }}" alt="{{ block.settings.image_title_two }}">
+                      </div>
+                      {% endif %}
+                      <div class="mega__sub_text">
+                        {% if  block.settings.image_title_two != blank %}
+                        <h2 class="mega__sub_title"> {{ block.settings.image_title_two }} </h2>
+                        {% endif %}
+                        {% if  block.settings.image_subtitle_two != blank %}
+                        <h3 class="mega__sub_subtitle"> {{ block.settings.image_subtitle_two  }} </h3>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+                  {% endif %}
+
+                  {% if block.settings.image_three != blank %}
+                  <div class="mega__sub_item mega__sub_item--{{ forloop.index }}">
+                    <a href="{{ block.settings.image_url_three }}">
+                      {% if block.settings.image_three != blank %}
+                      <div class="mega__sub_image">
+                        <img loading="lazy" src="{{ block.settings.image_three | img_url: 'master' }}" alt="{{ block.settings.image_title_three }}">
+                      </div>
+                      {% endif %}
+                      <div class="mega__sub_text">
+                        {% if  block.settings.image_title_three != blank %}
+                        <h2 class="mega__sub_title"> {{ block.settings.image_title_three }} </h2>
+                        {% endif %}
+                        {% if  block.settings.image_subtitle_three != blank %}
+                        <h3 class="mega__sub_subtitle"> {{ block.settings.image_subtitle_three  }} </h3>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+                  {% endif %}
+
+                  {% if block.settings.image_four != blank %}
+                  <div class="mega__sub_item mega__sub_item--{{ forloop.index }}">
+                    <a href="{{ block.settings.image_url_four }}">
+                      {% if block.settings.image_four != blank %}
+                      <div class="mega__sub_image">
+                        <img loading="lazy" src="{{ block.settings.image_four | img_url: 'master' }}" alt="{{ block.settings.image_title_four }}">
+                      </div>
+                      {% endif %}
+                      <div class="mega__sub_text">
+                        {% if  block.settings.image_title_four != blank %}
+                        <h2 class="mega__sub_title"> {{ block.settings.image_title_four }} </h2>
+                        {% endif %}
+                        {% if  block.settings.image_subtitle_four != blank %}
+                        <h3 class="mega__sub_subtitle"> {{ block.settings.image_subtitle_four  }} </h3>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+                  {% endif %}
+                  
+				{% if block.settings.image_five != blank %}
+                  <div class="mega__sub_item mega__sub_item--{{ forloop.index }}">
+                    <a href="{{ block.settings.image_url_five }}">
+                      {% if block.settings.image_five != blank %}
+                      <div class="mega__sub_image">
+                        <img loading="lazy" src="{{ block.settings.image_five | img_url: 'master' }}" alt="{{ block.settings.image_title_five }}">
+                      </div>
+                      {% endif %}
+                      <div class="mega__sub_text">
+                        {% if  block.settings.image_title_five != blank %}
+                        <h2 class="mega__sub_title"> {{ block.settings.image_title_five }} </h2>
+                        {% endif %}
+                        {% if  block.settings.image_subtitle_five != blank %}
+                        <h3 class="mega__sub_subtitle"> {{ block.settings.image_subtitle_five  }} </h3>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+                  {% endif %}
+                  
+                  {% if block.settings.image_six != blank %}
+                  <div class="mega__sub_item mega__sub_item--{{ forloop.index }}">
+                    <a href="{{ block.settings.image_url_six }}">
+                      {% if block.settings.image_six != blank %}
+                      <div class="mega__sub_image">
+                        <img loading="lazy" src="{{ block.settings.image_six | img_url: 'master' }}" alt="{{ block.settings.image_title_six }}">
+                      </div>
+                      {% endif %}
+                      <div class="mega__sub_text">
+                        {% if  block.settings.image_title_six != blank %}
+                        <h2 class="mega__sub_title"> {{ block.settings.image_title_six }} </h2>
+                        {% endif %}
+                        {% if  block.settings.image_subtitle_six != blank %}
+                        <h3 class="mega__sub_subtitle"> {{ block.settings.image_subtitle_six  }} </h3>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </div>
+                  {% endif %}
+				</div>
+                {% else  %}
+                 <ul class="mega__sub_items mega__sub_items--menus">
+              	 	{% for link in block.settings.menu_one.links %}
+                   	  <li class="mega__link">
+                        <a href="{{ link.url }}">{{ link.title }}</a>
+                      </li>
+                    {% endfor %}
+                 </ul>
+                
+              
+                {% endif %}
+  			  </div>
+            </li> 
+            {% else %}
+            <li class="mega__item">
+               <a class="mega__link" href="{{ block.settings.url }}"> {{ block.settings.title }} </a>
+            </li>
+            {% endif %}
+            {% endfor %}
+          </ul>
+        </div>
+<!--       <div class="mega__logo logo logo--nav">
+        <a href="/">
+          {% if section.settings.logo != blank %}
+            <img src="{{ section.settings.logo | img_url: '400x140' }}" alt="thicktails logo">
+          {%- else -%}
+              <span class="h2">{{ shop.name }}</span>
+          {% endif %}
+        </a>
+      </div> -->
+
+      <div class="mega__icons">
+        
+        <div class="mega__icon">
+          <a class="tel_icons_spacing" href="tel:3108531168"><i class="fa fa-phone" aria-hidden="true"></i></a>
+          <div class="mega__tooltip">
+            Contact Us: <span> 3108531168 </span>
+          </div>
+        </div>
+        <div class="mega__icon">
+          <a class="icons_spacing" href="mailto:hello@thicktails.com"><i class="fa fa-envelope-o" aria-hidden="true"></i></a>
+        </div>
+        {%- if shop.customer_accounts_enabled -%}
+         <div class="mega__icon">
+          <a href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" class="menu-drawer__account link focus-inset h5">
+            {% render 'icon-account' %}
+            {%- liquid
+                            if customer
+                              echo 'customer.account_fallback' | t
+                            else
+                              echo 'customer.log_in' | t
+                            endif
+                          -%}
+          </a>
+         </div>
+        {%- endif -%}
+       
+        <div class="mega__icon mega__icon--cart">
+          <a href="{{ routes.cart_url }}" class="header__icon header__icon--cart" id="cart-show-btn">
+            {% render 'icon-cart' %}
+          </a>  
+         <span class="cart-count-bubble" id="cart-count-bubble"> 0 </span>
+        </div>
+      </div>
+    </div>
+   </div>
+  </header>
+  {% render 'overlay' %}
+</section>
+
+{% schema %}
+  {
+    "name": "Mega Header",
+    "settings": [
+	  {
+		"type": "image_picker",
+		"label": "Logo",
+		"id": "logo"
+      }
+	],
+	"blocks": [
+	  {
+		"type": "link",
+		"name": "Link",
+		"settings": [
+		  {
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Link Title"
+		  },
+		  {
+			"type": "checkbox",
+			"id": "mega-dropdown",
+			"label": "Mega Dropdown",
+			"default": false
+		  },
+		  {
+			"type": "url",
+			"id": "url",
+			"label": "Url"
+		  },
+		  {
+			"type": "header",
+			"content": "SubMenu"
+		  },
+		  {
+			"type": "image_picker",
+			"id": "image_one",
+			"label": "Image One"
+		  },
+		  {
+			"type": "text",
+			"id": "image_title_one",
+			"label": "Image One Title",
+			"default": "Title"
+		  },
+		  {
+			"type": "text",
+			"id": "image_subtitle_one",
+			"label": "Image One Subtitle"
+		  },
+		  {
+		    "type": "url",
+			"id": "image_url_one",
+			"label": "Image One Url"
+		  },
+		  {
+			"type": "image_picker",
+			"id": "image_two",
+			"label": "Image Two"
+		  },
+		  {
+			"type": "text",
+			"id": "image_title_two",
+			"label": "Image Two Title",
+			"default": "Title"
+		  },
+		  {
+			"type": "text",
+			"id": "image_subtitle_two",
+			"label": "Image Two Subtitle"
+		  },
+		  {
+		    "type": "url",
+			"id": "image_url_two",
+			"label": "Image Two Url"
+		  },
+		  {
+			"type": "image_picker",
+			"id": "image_three",
+			"label": "Image Three"
+		  },
+		  {
+			"type": "text",
+			"id": "image_title_three",
+			"label": "Image Three Title"
+		  },
+		  {
+			"type": "text",
+			"id": "image_subtitle_three",
+			"label": "Image Three Subtitle "
+		  },
+		  {
+		    "type": "url",
+			"id": "image_url_three",
+			"label": "Image Three Url"
+		  },
+		  {
+			"type": "image_picker",
+			"id": "image_four",
+			"label": "Image Four"
+		  },
+		  {
+			"type": "text",
+			"id": "image_title_four",
+			"label": "Image Four Title"
+		  },
+		  {
+			"type": "text",
+			"id": "image_subtitle_four",
+			"label": "Image Four Subtitle "
+		  },
+		  {
+		    "type": "url",
+			"id": "image_url_four",
+			"label": "Image Four Url"
+		  },
+		  {
+			"type": "image_picker",
+			"id": "image_five",
+			"label": "Image Five"
+		  },
+		  {
+			"type": "text",
+			"id": "image_title_five",
+			"label": "Image Five Title"
+		  },
+		  {
+			"type": "text",
+			"id": "image_subtitle_five",
+			"label": "Image Five Subtitle "
+		  },
+		  {
+		    "type": "url",
+			"id": "image_url_five",
+			"label": "Image Five Url"
+		  },
+		  {
+			"type": "image_picker",
+			"id": "image_six",
+			"label": "Image Six"
+		  },
+		  {
+			"type": "text",
+			"id": "image_title_six",
+			"label": "Image Six Title"
+		  },
+		  {
+			"type": "text",
+			"id": "image_subtitle_six",
+			"label": "Image Six Subtitle "
+		  },
+		  {
+		    "type": "url",
+			"id": "image_url_six",
+			"label": "Image Six Url"
+		  }
+		]
+	  },
+	  {
+		"type": "dropdown_with_menus",
+		"name": "Drodown With Menus",
+		"settings": [
+		   {
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Link Title"
+		  },
+		  {
+			"type": "checkbox",
+			"id": "mega-dropdown",
+			"label": "Mega Dropdown",
+			"default": false
+		  },
+		  {
+			"type": "url",
+			"id": "url",
+			"label": "Url"
+		  },
+		  {
+			"type": "header",
+			"content": "SubMenu"
+		  },
+		  {
+			"type": "link_list",
+			"id": "menu_one",
+			"label": "Menu One"
+		  },
+		  {
+			"type": "link_list",
+			"id": "menu_two",
+			"label": "Menu Two"
+		  }
+		]
+	  },
+	  {
+		"type": "simple_link",
+		"name": "Simple Link",
+		"settings": [
+		  {
+			"type": "text",
+			"id": "title",
+			"label": "Title",
+			"default": "Link Title"
+		  },
+		  {
+			"type": "url",
+			"id": "url",
+			"label": "Url"
+		  }
+		]
+	  }
+	]
+  }
+{% endschema %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+{% javascript %}
+{% endjavascript %}
